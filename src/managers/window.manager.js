@@ -35,6 +35,7 @@ class WindowManager {
     this.bindWindows = true; // Enable window binding by default
     this.windowGap = 10; // Small gap between windows
     this.boundWindowsPosition = { x: 0, y: 0 }; // Track position of bound windows
+    this.stealthOpacity = parseFloat(process.env.STEALTH_OPACITY || '1.0');
     
     this.windowConfigs = {
       main: {
@@ -445,6 +446,14 @@ class WindowManager {
     browserWindowOptions.simpleFullscreen = false;
 
   const window = new BrowserWindow(browserWindowOptions);
+
+    if (this.stealthOpacity !== undefined && Number.isFinite(this.stealthOpacity)) {
+      try {
+        window.setOpacity(this.stealthOpacity);
+      } catch (e) {
+        logger.warn('Failed to set initial opacity on window', { type, error: e.message });
+      }
+    }
 
     // External links (GitHub, the website, Google AI Studio, etc.) must open in
     // the user's real browser, never inside the frameless overlay windows.
@@ -1489,6 +1498,23 @@ class WindowManager {
       dataPreview: data && data.content ? data.content.substring(0, 50) + '...' : 
                    data && data.response ? data.response.substring(0, 50) + '...' : 'No response'
     });
+  }
+
+  setWindowsOpacity(opacity) {
+    const op = Math.max(0.15, Math.min(1.0, Number(opacity) || 1.0));
+    this.stealthOpacity = op;
+    this.windows.forEach((win, type) => {
+      if (win && !win.isDestroyed()) {
+        try {
+          win.setOpacity(op);
+        } catch (err) {
+          logger.warn(`Failed to set opacity on ${type} window`, { error: err.message });
+        }
+      }
+    });
+    this.broadcastToAllWindows('opacity-changed', { opacity: op });
+    logger.info('Updated window opacity across all windows', { opacity: op });
+    return op;
   }
 
   getWindow(type) {

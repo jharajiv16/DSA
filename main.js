@@ -116,6 +116,14 @@ class ApplicationController {
   // Default to C++ so language is enforced from first run
   this.codingLanguage = "cpp";
     this.speechAvailable = false;
+    this.stealthTheme = process.env.STEALTH_THEME || "vscode-dark";
+    this.availableStealthThemes = [
+      "vscode-dark",
+      "ghost",
+      "terminal",
+      "light",
+      "classic"
+    ];
 
     // Utterance coalescing: VAD emits a transcript per natural pause, but a
     // single spoken question can still arrive as a few fragments (mid-thought
@@ -396,6 +404,7 @@ class ApplicationController {
       "CommandOrControl+Shift+C": () => windowManager.switchToWindow("chat"),
       "CommandOrControl+Shift+\\": () => this.clearSessionMemory(),
       "CommandOrControl+,": () => windowManager.showSettings(),
+      "CommandOrControl+Alt+C": () => this.cycleStealthTheme(),
       "Alt+A": () => windowManager.toggleInteraction(),
       "Alt+R": () => this.toggleSpeechRecognition(),
       "CommandOrControl+Shift+T": () => windowManager.forceAlwaysOnTopForAllWindows(),
@@ -414,6 +423,22 @@ class ApplicationController {
       const success = globalShortcut.register(accelerator, handler);
       logger.debug("Global shortcut registered", { accelerator, success });
     });
+  }
+
+  cycleStealthTheme() {
+    const currentIndex = this.availableStealthThemes.indexOf(this.stealthTheme);
+    const nextIndex = (currentIndex + 1) % this.availableStealthThemes.length;
+    const newTheme = this.availableStealthThemes[nextIndex];
+    return this.setStealthTheme(newTheme);
+  }
+
+  setStealthTheme(theme) {
+    if (!this.availableStealthThemes.includes(theme)) return this.stealthTheme;
+    this.stealthTheme = theme;
+    windowManager.broadcastToAllWindows('theme-changed', { theme });
+    this.persistEnvUpdates({ STEALTH_THEME: theme });
+    logger.info('Camouflage theme changed', { theme });
+    return theme;
   }
 
   setupServiceEventHandlers() {
@@ -476,6 +501,24 @@ class ApplicationController {
       return speechService.isAvailable ? speechService.isAvailable() : false;
     });
 
+    ipcMain.handle("get-stealth-theme", () => {
+      return this.stealthTheme;
+    });
+
+    ipcMain.handle("set-stealth-theme", (_event, theme) => {
+      return this.setStealthTheme(theme);
+    });
+
+    ipcMain.handle("cycle-stealth-theme", () => {
+      return this.cycleStealthTheme();
+    });
+
+    ipcMain.handle("set-stealth-opacity", (_event, opacity) => {
+      const op = windowManager.setWindowsOpacity(opacity);
+      this.persistEnvUpdates({ STEALTH_OPACITY: String(op) });
+      return op;
+    });
+
     ipcMain.handle("start-speech-recognition", () => {
       speechService.startRecording();
       return speechService.getStatus();
@@ -521,6 +564,8 @@ class ApplicationController {
       BrowserWindow.getAllWindows().forEach((win) => {
         if (!win.isDestroyed()) {
           win.webContents.send("speech-availability", { available: this.speechAvailable });
+          win.webContents.send("theme-changed", { theme: this.stealthTheme });
+          win.webContents.send("opacity-changed", { opacity: windowManager.stealthOpacity || 1.0 });
         }
       });
     });
@@ -1599,6 +1644,8 @@ class ApplicationController {
       appIcon: this.appIcon || "terminal",
       selectedIcon: this.appIcon || "terminal",
       windowGap: windowManager.windowGap,
+      stealthTheme: this.stealthTheme || "vscode-dark",
+      stealthOpacity: windowManager.stealthOpacity !== undefined ? windowManager.stealthOpacity : 1.0,
 
       speechProvider: speechService.provider || "whisper",
       azureKey: process.env.AZURE_SPEECH_KEY || "",
@@ -1632,6 +1679,13 @@ class ApplicationController {
         windowManager.broadcastToAllWindows("skill-updated", {
           skill: settings.activeSkill,
         });
+      }
+      if (settings.stealthTheme) {
+        this.setStealthTheme(settings.stealthTheme);
+      }
+      if (settings.stealthOpacity !== undefined) {
+        const op = windowManager.setWindowsOpacity(settings.stealthOpacity);
+        this.persistEnvUpdates({ STEALTH_OPACITY: String(op) });
       }
       if (settings.appIcon) {
         this.appIcon = settings.appIcon;

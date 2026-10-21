@@ -59,6 +59,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   updateAppIcon: (iconKey) => ipcRenderer.invoke('update-app-icon', iconKey),
   updateActiveSkill: (skill) => ipcRenderer.invoke('update-active-skill', skill),
+  getStealthTheme: () => ipcRenderer.invoke('get-stealth-theme'),
+  setStealthTheme: (theme) => ipcRenderer.invoke('set-stealth-theme', theme),
+  cycleStealthTheme: () => ipcRenderer.invoke('cycle-stealth-theme'),
+  setStealthOpacity: (opacity) => ipcRenderer.invoke('set-stealth-opacity', opacity),
   restartAppForStealth: () => ipcRenderer.invoke('restart-app-for-stealth'),
   closeWindow: () => ipcRenderer.invoke('close-window'),
   notifyMainWindowReady: () => {
@@ -118,6 +122,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onRecordingStopped: (callback) => ipcRenderer.on('recording-stopped', callback),
   onCodingLanguageChanged: (callback) => ipcRenderer.on('coding-language-changed', callback),
   onMainWindowShown: (callback) => ipcRenderer.on('main-window-shown', callback),
+  onThemeChanged: (callback) => ipcRenderer.on('theme-changed', callback),
+  onOpacityChanged: (callback) => ipcRenderer.on('opacity-changed', callback),
   
   // Generic receive method
   receive: (channel, callback) => ipcRenderer.on(channel, callback),

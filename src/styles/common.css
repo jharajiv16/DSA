@@ -3,6 +3,120 @@
 /* Font imports */
 @import url('../../node_modules/@fortawesome/fontawesome-free/css/all.min.css');
 
+/* Camouflage & Stealth Theme Variables */
+:root {
+    --overlay-bg: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(20, 20, 20, 0.5) 100%);
+    --overlay-backdrop: blur(20px);
+    --overlay-border: rgba(255, 255, 255, 0.15);
+    --header-bg: rgba(0, 0, 0, 0.25);
+    --header-border: rgba(255, 255, 255, 0.08);
+    --card-bg: rgba(255, 255, 255, 0.08);
+    --card-border: rgba(255, 255, 255, 0.15);
+    --text-primary: rgba(255, 255, 255, 0.95);
+    --text-secondary: rgba(255, 255, 255, 0.65);
+    --text-muted: rgba(255, 255, 255, 0.45);
+    --code-bg: rgba(0, 0, 0, 0.4);
+    --code-text: #e5e7eb;
+    --accent-color: #4CAF50;
+    --input-bg: rgba(255, 255, 255, 0.1);
+    --input-border: rgba(255, 255, 255, 0.15);
+}
+
+/* VS Code / IDE Dark: Matches VS Code, Cursor, Windsurf, JetBrains Dark */
+body.theme-vscode-dark {
+    --overlay-bg: #1e1e1e;
+    --overlay-backdrop: none;
+    --overlay-border: #2d2d2d;
+    --header-bg: #252526;
+    --header-border: #333333;
+    --card-bg: #252526;
+    --card-border: #2d2d2d;
+    --text-primary: #d4d4d4;
+    --text-secondary: #969696;
+    --text-muted: #6e6e6e;
+    --code-bg: #181818;
+    --code-text: #9cdcfe;
+    --accent-color: #007acc;
+    --input-bg: #2d2d2d;
+    --input-border: #3c3c3c;
+}
+
+/* Ghost / Ultra-Translucent: Camouflages into any screen background */
+body.theme-ghost {
+    --overlay-bg: rgba(18, 18, 18, 0.22);
+    --overlay-backdrop: blur(4px);
+    --overlay-border: rgba(255, 255, 255, 0.07);
+    --header-bg: rgba(0, 0, 0, 0.15);
+    --header-border: rgba(255, 255, 255, 0.05);
+    --card-bg: rgba(255, 255, 255, 0.04);
+    --card-border: rgba(255, 255, 255, 0.07);
+    --text-primary: rgba(230, 230, 230, 0.72);
+    --text-secondary: rgba(200, 200, 200, 0.45);
+    --text-muted: rgba(180, 180, 180, 0.3);
+    --code-bg: rgba(0, 0, 0, 0.2);
+    --code-text: rgba(220, 220, 220, 0.75);
+    --accent-color: rgba(76, 175, 80, 0.6);
+    --input-bg: rgba(255, 255, 255, 0.04);
+    --input-border: rgba(255, 255, 255, 0.08);
+}
+
+/* Terminal / Deep Pitch Black: Matches iTerm2, macOS Terminal, Alacritty */
+body.theme-terminal {
+    --overlay-bg: #0c0c0c;
+    --overlay-backdrop: none;
+    --overlay-border: #1f1f1f;
+    --header-bg: #141414;
+    --header-border: #222222;
+    --card-bg: #141414;
+    --card-border: #222222;
+    --text-primary: #cccccc;
+    --text-secondary: #888888;
+    --text-muted: #555555;
+    --code-bg: #050505;
+    --code-text: #73d216;
+    --accent-color: #4e9a06;
+    --input-bg: #141414;
+    --input-border: #282828;
+}
+
+/* Light / Document Mode: Matches Google Docs, Notion, Chrome light mode */
+body.theme-light {
+    --overlay-bg: rgba(255, 255, 255, 0.96);
+    --overlay-backdrop: blur(16px);
+    --overlay-border: #e2e8f0;
+    --header-bg: #f8fafc;
+    --header-border: #e2e8f0;
+    --card-bg: #f1f5f9;
+    --card-border: #cbd5e1;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --code-bg: #f1f5f9;
+    --code-text: #0f172a;
+    --accent-color: #2563eb;
+    --input-bg: #f8fafc;
+    --input-border: #cbd5e1;
+}
+
+/* Classic Glassmorphism */
+body.theme-classic {
+    --overlay-bg: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(20, 20, 20, 0.5) 100%);
+    --overlay-backdrop: blur(20px);
+    --overlay-border: rgba(255, 255, 255, 0.15);
+    --header-bg: rgba(0, 0, 0, 0.25);
+    --header-border: rgba(255, 255, 255, 0.08);
+    --card-bg: rgba(255, 255, 255, 0.08);
+    --card-border: rgba(255, 255, 255, 0.15);
+    --text-primary: rgba(255, 255, 255, 0.95);
+    --text-secondary: rgba(255, 255, 255, 0.65);
+    --text-muted: rgba(255, 255, 255, 0.45);
+    --code-bg: rgba(0, 0, 0, 0.4);
+    --code-text: #e5e7eb;
+    --accent-color: #4CAF50;
+    --input-bg: rgba(255, 255, 255, 0.1);
+    --input-border: rgba(255, 255, 255, 0.15);
+}
+
 /* Base styles */
 body {
     background: transparent !important;
@@ -11,6 +125,8 @@ body {
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     cursor: default;
+    color: var(--text-primary);
+    transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Common container styles */
@@ -20,27 +136,28 @@ body {
     display: flex;
     flex-direction: column;
     -webkit-app-region: drag;
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(20, 20, 20, 0.4) 100%);
-    backdrop-filter: blur(25px);
+    background: var(--overlay-bg);
+    backdrop-filter: var(--overlay-backdrop);
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--overlay-border);
     box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
+    transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 /* Header styles */
 .app-header {
     padding: 12px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--header-border);
     display: flex;
     align-items: center;
     justify-content: space-between;
     -webkit-app-region: no-drag;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--header-bg);
     backdrop-filter: blur(10px);
 }
 
 .header-title {
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--text-primary);
     font-size: 13px;
     font-weight: 600;
     display: flex;
@@ -55,6 +172,7 @@ body {
     padding: 16px;
     overflow-y: auto;
     -webkit-app-region: no-drag;
+    color: var(--text-primary);
 }
 
 /* Status indicators */
@@ -169,48 +287,50 @@ body {
 
 /* Input styles */
 .input-field {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
     border-radius: 6px;
     padding: 8px 12px;
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--text-primary);
     font-size: 13px;
     outline: none;
     transition: all 0.2s ease;
 }
 
 .input-field:focus {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(76, 175, 80, 0.5);
+    background: var(--input-bg);
+    border-color: var(--accent-color);
 }
 
 .input-field::placeholder {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-muted);
 }
 
 /* Card styles */
 .card {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--card-bg);
     border-radius: 8px;
     padding: 12px 16px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--card-border);
     backdrop-filter: blur(5px);
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    color: var(--text-primary);
 }
 
 .card:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.25);
+    background: var(--card-bg);
+    filter: brightness(1.15);
+    border-color: var(--accent-color);
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .card.active {
-    background: rgba(76, 175, 80, 0.15);
-    border-color: rgba(76, 175, 80, 0.4);
+    background: var(--card-bg);
+    border-color: var(--accent-color);
     box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
 }
 
@@ -218,15 +338,16 @@ body {
 .message {
     margin-bottom: 12px;
     padding: 10px 14px;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--card-bg);
     border-radius: 8px;
-    border-left: 3px solid rgba(255, 255, 255, 0.2);
+    border-left: 3px solid var(--overlay-border);
     backdrop-filter: blur(5px);
     min-height: auto;
     height: auto;
     overflow: visible;
     word-wrap: break-word;
     word-break: break-word;
+    color: var(--text-primary);
 }
 
 .message.system {

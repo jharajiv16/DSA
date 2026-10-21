@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const codingLanguageSelect = document.getElementById('codingLanguage');
     const activeSkillSelect = document.getElementById('activeSkill');
     const iconGrid = document.getElementById('iconGrid');
+    const stealthThemeSelect = document.getElementById('stealthTheme');
+    const stealthOpacityInput = document.getElementById('stealthOpacity');
+    const opacityValueSpan = document.getElementById('opacityValue');
 
     // Check if window.api exists
     if (!window.api) {
@@ -97,6 +100,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (settings.activeSkill && activeSkillSelect) activeSkillSelect.value = settings.activeSkill;
 
+        // Handle stealth theme and opacity
+        if (settings.stealthTheme && stealthThemeSelect) {
+            stealthThemeSelect.value = settings.stealthTheme;
+            document.body.className = 'theme-' + settings.stealthTheme;
+        }
+        if (settings.stealthOpacity !== undefined && stealthOpacityInput) {
+            const pct = Math.round((Number(settings.stealthOpacity) || 1.0) * 100);
+            stealthOpacityInput.value = pct;
+            if (opacityValueSpan) opacityValueSpan.textContent = pct + '%';
+        }
+
         // Handle icon selection
         const selectedIcon = settings.selectedIcon || settings.appIcon;
         if (selectedIcon && iconGrid) {
@@ -131,6 +145,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Language updated from overlay window:', data.language);
             }
     });
+
+    if (window.electronAPI.onThemeChanged) {
+        window.electronAPI.onThemeChanged((event, data) => {
+            if (data && data.theme) {
+                if (stealthThemeSelect) stealthThemeSelect.value = data.theme;
+                document.body.className = 'theme-' + data.theme;
+            }
+        });
+    }
     }
 
     // Save settings helper function
@@ -150,6 +173,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (windowGapInput) settings.windowGap = windowGapInput.value;
         if (codingLanguageSelect) settings.codingLanguage = codingLanguageSelect.value;
         if (activeSkillSelect) settings.activeSkill = activeSkillSelect.value;
+        if (stealthThemeSelect) settings.stealthTheme = stealthThemeSelect.value;
+        if (stealthOpacityInput) settings.stealthOpacity = (parseFloat(stealthOpacityInput.value) / 100).toFixed(2);
         
         window.api.send('save-settings', settings);
     };
@@ -233,6 +258,34 @@ document.addEventListener('DOMContentLoaded', () => {
             saveSettings();
             // Also update the main window
             window.api.send('update-skill', e.target.value);
+        });
+    }
+
+    // Stealth Theme selection handler
+    if (stealthThemeSelect) {
+        stealthThemeSelect.addEventListener('change', (e) => {
+            const theme = e.target.value;
+            document.body.className = 'theme-' + theme;
+            if (window.electronAPI && window.electronAPI.setStealthTheme) {
+                window.electronAPI.setStealthTheme(theme);
+            } else {
+                saveSettings();
+            }
+        });
+    }
+
+    // Stealth Opacity slider handler
+    if (stealthOpacityInput) {
+        stealthOpacityInput.addEventListener('input', (e) => {
+            const pct = e.target.value;
+            if (opacityValueSpan) opacityValueSpan.textContent = pct + '%';
+            const op = parseFloat(pct) / 100;
+            if (window.electronAPI && window.electronAPI.setStealthOpacity) {
+                window.electronAPI.setStealthOpacity(op);
+            }
+        });
+        stealthOpacityInput.addEventListener('change', () => {
+            saveSettings();
         });
     }
 

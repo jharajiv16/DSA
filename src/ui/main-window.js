@@ -49,6 +49,9 @@ class MainWindowUI {
             
             // Fetch speech availability
             await this.loadSpeechAvailability();
+
+            // Load stealth camouflage theme
+            await this.loadCurrentTheme();
             
             this.updateSkillIndicator();
             this.updateAllElementStates(); // Update all elements with current state
@@ -139,6 +142,43 @@ class MainWindowUI {
             // Resize to reflect layout change
             setTimeout(() => this.resizeWindowToContent(), 50);
         }
+    }
+
+    async loadCurrentTheme() {
+        try {
+            if (window.electronAPI && window.electronAPI.getSettings) {
+                const settings = await window.electronAPI.getSettings();
+                if (settings && settings.stealthTheme) {
+                    this.applyTheme(settings.stealthTheme);
+                    return;
+                }
+            }
+            if (window.electronAPI && window.electronAPI.getStealthTheme) {
+                const theme = await window.electronAPI.getStealthTheme();
+                if (theme) this.applyTheme(theme);
+            }
+        } catch (e) {
+            logger.warn('Failed to load current stealth theme', { error: e.message });
+        }
+    }
+
+    applyTheme(theme) {
+        const themeClasses = ['theme-vscode-dark', 'theme-ghost', 'theme-terminal', 'theme-light', 'theme-classic'];
+        document.body.classList.remove(...themeClasses);
+        if (theme) {
+            document.body.classList.add(`theme-${theme}`);
+        }
+        if (this.themeButton) {
+            const labels = {
+                'vscode-dark': 'VS Code Dark',
+                'ghost': 'Ghost (Translucent)',
+                'terminal': 'Terminal Pitch Black',
+                'light': 'Light Mode',
+                'classic': 'Classic Glass'
+            };
+            this.themeButton.title = `Camouflage: ${labels[theme] || theme} (⌘⌥C to cycle)`;
+        }
+        logger.debug('Stealth theme applied to main overlay', { theme });
     }
 
     updateAllElementStates() {
@@ -413,10 +453,32 @@ class MainWindowUI {
                 }
             });
         }
+
+        // Camouflage Theme button
+        this.themeButton = document.getElementById('themeButton');
+        if (this.themeButton) {
+            this.themeButton.addEventListener('click', async (e) => {
+                if (!this.isInteractive) return;
+                e.stopPropagation();
+                if (window.electronAPI && window.electronAPI.cycleStealthTheme) {
+                    const newTheme = await window.electronAPI.cycleStealthTheme();
+                    this.applyTheme(newTheme);
+                }
+            });
+        }
     }
 
     setupEventListeners() {
         if (window.electronAPI) {
+            // Theme changed listener
+            if (window.electronAPI.onThemeChanged) {
+                window.electronAPI.onThemeChanged((event, data) => {
+                    if (data && data.theme) {
+                        this.applyTheme(data.theme);
+                    }
+                });
+            }
+
             // Fix interaction mode change listener
             window.electronAPI.onInteractionModeChanged((event, interactive) => {
                 logger.debug('Interaction mode changed received:', interactive);

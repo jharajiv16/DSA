@@ -21,33 +21,34 @@
       .chat-container {
         width: 100%;
         height: 100vh;
-        background: linear-gradient(
+        background: var(--overlay-bg, linear-gradient(
           135deg,
           rgba(0, 0, 0, 0.3) 0%,
           rgba(20, 20, 20, 0.4) 100%
-        );
-        backdrop-filter: blur(25px);
+        ));
+        backdrop-filter: var(--overlay-backdrop, blur(25px));
         border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--overlay-border, rgba(255, 255, 255, 0.1));
         box-shadow: 0 4px 25px rgba(0, 0, 0, 0.15);
         display: flex;
         flex-direction: column;
         -webkit-app-region: drag;
+        transition: background 0.25s ease, border-color 0.25s ease;
       }
       .chat-header {
         padding: 16px 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid var(--header-border, rgba(255, 255, 255, 0.08));
         display: flex;
         align-items: center;
         justify-content: space-between;
         -webkit-app-region: drag;
-        background: rgba(0, 0, 0, 0.2);
+        background: var(--header-bg, rgba(0, 0, 0, 0.2));
         backdrop-filter: blur(10px);
         cursor: move;
         flex-shrink: 0;
       }
       .header-title {
-        color: rgba(255, 255, 255, 0.95);
+        color: var(--text-primary, rgba(255, 255, 255, 0.95));
         font-size: 14px;
         font-weight: 600;
         display: flex;
@@ -413,9 +414,9 @@
       }
       .chat-input {
         padding: 16px 20px;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: 1px solid var(--header-border, rgba(255, 255, 255, 0.08));
         -webkit-app-region: no-drag;
-        background: rgba(0, 0, 0, 0.2);
+        background: var(--header-bg, rgba(0, 0, 0, 0.2));
         backdrop-filter: blur(10px);
         flex-shrink: 0;
       }
@@ -423,17 +424,17 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        background: rgba(255, 255, 255, 0.1);
+        background: var(--input-bg, rgba(255, 255, 255, 0.1));
         border-radius: 8px;
         padding: 8px 12px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        border: 1px solid var(--input-border, rgba(255, 255, 255, 0.15));
         -webkit-app-region: no-drag;
       }
       .input-field {
         flex: 1;
         background: transparent;
         border: none;
-        color: rgba(255, 255, 255, 0.95);
+        color: var(--text-primary, rgba(255, 255, 255, 0.95));
         font-size: 13px;
         outline: none;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -448,7 +449,7 @@
         outline: none;
       }
       .input-field::placeholder {
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--text-muted, rgba(255, 255, 255, 0.5));
       }
       .send-button {
         background: rgba(255, 255, 255, 0.15);
@@ -741,6 +742,23 @@
       let listeningStartTime = null;
       let listeningTimer = null;
       let speechAvailable = false;
+
+      // Stealth theme handling
+      const applyStealthTheme = (theme) => {
+        const themeClasses = ['theme-vscode-dark', 'theme-ghost', 'theme-terminal', 'theme-light', 'theme-classic'];
+        document.body.classList.remove(...themeClasses);
+        if (theme) document.body.classList.add(`theme-${theme}`);
+      };
+      if (whysperAPI && whysperAPI.onThemeChanged) {
+        whysperAPI.onThemeChanged((event, data) => {
+          if (data && data.theme) applyStealthTheme(data.theme);
+        });
+      }
+      if (whysperAPI && whysperAPI.getSettings) {
+        whysperAPI.getSettings().then(s => {
+          if (s && s.stealthTheme) applyStealthTheme(s.stealthTheme);
+        }).catch(() => {});
+      }
 
       // Chat persistence and deduplication
       const CHAT_HISTORY_KEY = 'opencluely_chat_history_v1';
