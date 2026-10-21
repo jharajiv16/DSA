@@ -6,8 +6,8 @@ class PromptLoader {
     this.prompts = new Map();
     this.promptsLoaded = false;
     this.skillPromptSent = new Set();
-    // Focus only on DSA
-    this.skillsRequiringProgrammingLanguage = ['dsa'];
+    // Skills that require programming language context
+    this.skillsRequiringProgrammingLanguage = ['dsa', 'programming', 'python'];
   }
 
   /**
@@ -28,7 +28,6 @@ class PromptLoader {
       for (const file of files) {
         if (file.endsWith('.md')) {
           const skillName = path.basename(file, '.md');
-          if (skillName !== 'dsa') continue; // only keep DSA
           const filePath = path.join(promptsDir, file);
           const promptContent = fs.readFileSync(filePath, 'utf8');
           
@@ -97,6 +96,14 @@ STRICT REQUIREMENTS:
 - Provide: brief approach, then final ${languageTitle} implementation, followed by time/space complexity.
 - If the user's input is a problem statement (and does not include code), produce a complete, runnable ${languageTitle} solution without asking for clarification.
 - Avoid unnecessary verbosity; focus on correctness, clarity, and efficiency.`;
+        break;
+      case 'python':
+        languageInjection = `\n\n## IMPLEMENTATION LANGUAGE: PYTHON
+STRICT REQUIREMENTS:
+- Respond ONLY in Python (3.10+).
+- All code blocks must use \`\`\`python\`\`\` fences.
+- Follow PEP 8 guidelines with clean type annotations.
+- Provide idiomatic, efficient solutions with complexity analysis.`;
         break;
       default:
         languageInjection = `\n\n## PROGRAMMING LANGUAGE: ${languageUpper}\nAll code and examples must be in ${languageTitle}. Use code fences with tag: \`\`\`${fenceTag}\`\`\`.`;
@@ -324,6 +331,17 @@ STRICT REQUIREMENTS:
     
     // Map common variations to standard names
     const skillMap = {
+      'os': 'os',
+      'operating-system': 'os',
+      'operating-systems': 'os',
+      'operating_systems': 'os',
+      'operating_system': 'os',
+      'systems': 'os',
+      'python': 'python',
+      'py': 'python',
+      'general': 'general',
+      'general-cs': 'general',
+      'cs': 'general',
       'dsa': 'dsa',
       'data-structures': 'dsa',
       'algorithms': 'dsa',
@@ -368,7 +386,13 @@ STRICT REQUIREMENTS:
     if (!this.promptsLoaded) {
       this.loadPrompts();
     }
-    return ['dsa'];
+    const priority = ['dsa', 'python', 'os', 'programming', 'system-design', 'general'];
+    const loaded = Array.from(this.prompts.keys());
+    const result = priority.filter(s => loaded.includes(s));
+    loaded.forEach(s => {
+      if (!result.includes(s)) result.push(s);
+    });
+    return result.length > 0 ? result : ['dsa'];
   }
 
   /**

@@ -799,37 +799,15 @@ Always respond to the point, do not repeat the question or unnecessary informati
 
 ## Response Rules:
 
-### If the transcription is casual conversation, greetings, or NOT related to ${activeSkill}:
-- Respond with: "Yeah, I'm listening. Ask your question relevant to ${activeSkill}."
-- Or similar brief acknowledgments like: "I'm here, what's your ${activeSkill} question?"
+### If the input is casual chit-chat, greetings, or microphone testing:
+- Respond briefly: "Listening! Go ahead with your question or problem."
 
-### If the transcription IS relevant to ${activeSkill} or is a follow-up question:
-- Provide a comprehensive, detailed response
-- Use bullet points, examples, and explanations
-- Focus on actionable insights and complete answers
-- Do not truncate or shorten your response
-
-### Examples of casual/irrelevant messages:
-- "Hello", "Hi there", "How are you?"
-- "What's the weather like?"
-- "I'm just testing this"
-- Random conversations not related to ${activeSkill}
-
-### Examples of relevant messages:
-- Actual questions about ${activeSkill} concepts
-- Follow-up questions to previous responses
-- Requests for clarification on ${activeSkill} topics
-- Problem-solving requests related to ${activeSkill}
-
-## Response Format:
-- Keep responses detailed
-- Use bullet points for structured answers
-- Be encouraging and helpful
-- Stay focused on ${activeSkill}
-
-If the user's input is a coding or DSA problem statement and contains no code, produce a complete, runnable solution in the selected programming language without asking for more details. Always include the final implementation in a properly tagged code block.
-
-Remember: Be intelligent about filtering - only provide detailed responses when the user actually needs help with ${activeSkill}.`;
+### If the input is ANY technical, programming, computer science, or interview question:
+- Answer directly and authoritatively.
+- This includes questions about Operating Systems (processes, threads, scheduling, memory, deadlocks, Linux), Python language internals, DSA, System Design, or general engineering.
+- Never refuse a computer science or engineering question; provide the optimal, clear, interview-ready answer immediately.
+- Structure responses with concise explanations, bullet points, and code blocks where applicable.
+- If the user's input is a coding problem statement, produce a complete, runnable solution in the selected programming language.`;
 
     return prompt;
   }
@@ -1328,8 +1306,11 @@ Remember: Be intelligent about filtering - only provide detailed responses when 
 
     const fallbackResponses = {
       'dsa': 'This appears to be a data structures and algorithms problem. Consider breaking it down into smaller components and identifying the appropriate algorithm or data structure to use.',
+      'python': 'This is a Python programming inquiry. Consider Pythonic idioms, memory management, and built-in standard library utilities.',
+      'os': 'This is an operating systems question. Consider process/thread lifecycles, memory management, CPU scheduling, or synchronization primitives.',
       'system-design': 'For this system design question, consider scalability, reliability, and the trade-offs between different architectural approaches.',
       'programming': 'This looks like a programming challenge. Focus on understanding the requirements, edge cases, and optimal time/space complexity.',
+      'general': 'For this technical question, consider core computer science fundamentals, trade-offs, and structured problem-solving.',
       'default': 'I can help analyze this content. Please ensure your Gemini API key is properly configured for detailed analysis.'
     };
 
@@ -1352,8 +1333,11 @@ Remember: Be intelligent about filtering - only provide detailed responses when 
     // Simple heuristic to determine if message seems skill-related
     const skillKeywords = {
       'dsa': ['algorithm', 'data structure', 'array', 'tree', 'graph', 'sort', 'search', 'complexity', 'big o'],
+      'python': ['python', 'def', 'class', 'list', 'dict', 'tuple', 'set', 'generator', 'decorator', 'gil', 'async', 'lambda', 'dunder', 'iter'],
+      'os': ['os', 'operating system', 'process', 'thread', 'memory', 'paging', 'virtual memory', 'cpu', 'scheduling', 'deadlock', 'semaphore', 'mutex', 'syscall', 'kernel', 'linux', 'unix', 'concurrency'],
       'programming': ['code', 'function', 'variable', 'class', 'method', 'bug', 'debug', 'syntax'],
       'system-design': ['scalability', 'database', 'architecture', 'microservice', 'load balancer', 'cache'],
+      'general': ['computer science', 'network', 'protocol', 'database', 'sql', 'system', 'interview', 'trade-off'],
       'behavioral': ['interview', 'experience', 'situation', 'leadership', 'conflict', 'team'],
       'sales': ['customer', 'deal', 'negotiation', 'price', 'revenue', 'prospect'],
       'presentation': ['slide', 'audience', 'public speaking', 'presentation', 'nervous'],

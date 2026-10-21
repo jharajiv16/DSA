@@ -937,7 +937,11 @@ class WindowManager {
     // This is only a capture availability probe. desktopCapturer.getSources()
     // cannot tell whether another app is currently sharing the screen.
     this.screenCaptureAvailabilityWatcher = setInterval(async () => {
-      await this.checkScreenCaptureAvailability();
+      try {
+        await this.checkScreenCaptureAvailability();
+      } catch (err) {
+        logger.debug('Screen capture availability watcher check failed', { error: err && err.message });
+      }
     }, 5000); // Check every 5 seconds instead of 1
 
     logger.info('Screen capture availability watcher initialized');

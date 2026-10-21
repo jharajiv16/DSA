@@ -25,6 +25,7 @@ class Logger {
       level: process.env.LOG_LEVEL || 'info',
       format: logFormat,
       defaultMeta: { pid: process.pid },
+      exitOnError: false,
       transports: [
         new winston.transports.Console({
           format: winston.format.combine(

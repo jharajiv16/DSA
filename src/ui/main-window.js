@@ -25,7 +25,12 @@ class MainWindowUI {
         
         // Define available skills for navigation
         this.availableSkills = [
-            'dsa'
+            'dsa',
+            'python',
+            'os',
+            'programming',
+            'system-design',
+            'general'
         ];
         
         this.init();
@@ -288,17 +293,10 @@ class MainWindowUI {
             }
         });
 
-        // Skill indicator click handler toggles DSA skill
+        // Skill indicator click handler cycles through available skills
         this.skillIndicator.addEventListener('click', () => {
             if (!this.isInteractive) return;
-            const newSkill = 'dsa';
-            if (window.electronAPI && window.electronAPI.updateActiveSkill) {
-                window.electronAPI.updateActiveSkill(newSkill).then(() => {
-                    this.handleSkillActivated(newSkill);
-                });
-            } else {
-                this.handleSkillActivated(newSkill);
-            }
+            this.navigateSkill(1);
         });
 
         // Check for required elements (settingsIndicator is optional)
@@ -520,13 +518,16 @@ class MainWindowUI {
         const skill = data.skill || data.metadata?.skill || 'General';
         const skillNames = {
             'dsa': 'DSA',
+            'python': 'Python',
+            'os': 'OS',
+            'programming': 'Coding',
+            'system-design': 'SysDesign',
+            'general': 'General',
             'behavioral': 'Behavioral', 
             'sales': 'Sales',
             'presentation': 'Presentation',
             'data-science': 'Data Science',
-            'programming': 'Programming',
             'devops': 'DevOps',
-            'system-design': 'System Design',
             'negotiation': 'Negotiation'
         };
         
@@ -759,13 +760,16 @@ class MainWindowUI {
     updateSkillIndicator() {
         const skillNames = {
             'dsa': 'DSA',
+            'python': 'Python',
+            'os': 'OS',
+            'programming': 'Coding',
+            'system-design': 'SysDesign',
+            'general': 'General',
             'behavioral': 'Behavioral', 
             'sales': 'Sales',
             'presentation': 'Presentation',
             'data-science': 'Data Science',
-            'programming': 'Programming',
             'devops': 'DevOps',
-            'system-design': 'System Design',
             'negotiation': 'Negotiation'
         };
         
@@ -798,6 +802,19 @@ class MainWindowUI {
                 `${skillName} - Enable interactive mode (Alt+A) to navigate`;
             this.skillIndicator.title = tooltip;
             
+            const skillIcons = {
+                'dsa': 'fa-brain',
+                'python': 'fa-code',
+                'os': 'fa-microchip',
+                'programming': 'fa-laptop-code',
+                'system-design': 'fa-cubes',
+                'general': 'fa-compass'
+            };
+            const iconElem = this.skillIndicator.querySelector('i');
+            if (iconElem && skillIcons[this.currentSkill]) {
+                iconElem.className = `fas ${skillIcons[this.currentSkill]}`;
+            }
+
             // Add visual feedback for skill change
             this.animateSkillChange();
             
@@ -872,13 +889,16 @@ class MainWindowUI {
     showSkillChangeNotification(skill, direction) {
         const skillNames = {
             'dsa': 'DSA',
+            'python': 'Python',
+            'os': 'OS',
+            'programming': 'Coding',
+            'system-design': 'SysDesign',
+            'general': 'General',
             'behavioral': 'Behavioral', 
             'sales': 'Sales',
             'presentation': 'Presentation',
             'data-science': 'Data Science',
-            'programming': 'Programming',
             'devops': 'DevOps',
-            'system-design': 'System Design',
             'negotiation': 'Negotiation'
         };
         

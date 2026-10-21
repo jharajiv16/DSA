@@ -68,10 +68,18 @@ class CaptureService {
     const targetDisplay = this._getTargetDisplay(options.displayId);
     const { width, height } = targetDisplay.size || { width: 1920, height: 1080 };
 
-    const sources = await desktopCapturer.getSources({
-      types: ['screen'],
-      thumbnailSize: { width, height }
-    });
+    let sources;
+    try {
+      sources = await desktopCapturer.getSources({
+        types: ['screen'],
+        thumbnailSize: { width, height }
+      });
+    } catch (err) {
+      if (err && err.message && err.message.includes('Failed to get sources')) {
+        throw new Error('Screen Recording permission required. Go to macOS System Settings → Privacy & Security → Screen Recording and enable permission.');
+      }
+      throw err;
+    }
 
     if (sources.length === 0) {
       throw new Error('No screen sources available for capture');
